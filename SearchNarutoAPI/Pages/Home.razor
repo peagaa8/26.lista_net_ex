@@ -1,0 +1,44 @@
+﻿@page "/"
+@inject HttpClient Http
+
+<h3>Personagens de Naruto</h3>
+
+@if (characters == null)
+{
+    <p>Carregando...</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var p in characters)
+        {
+            <div class="col-md-4">
+                <div class="card">
+                    @if (p.Images != null && p.Images.Any())
+                    {
+                        <img src="@p.Images[0]" class="card-img-top" alt="@p.Name" /> <!-- Exibir ao menos uma imagem[cite: 2] -->
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@p.Name</h5>
+                        <p><strong>Clã/Afiliação:</strong> @(p.Personal?.Clan ?? p.Personal?.Affiliation)</p>
+                        <p><strong>Rank Ninja:</strong> @p.Rank?.NinjaRank</p>
+                        <p><strong>Jutsus:</strong> @(p.Jutsu != null ? string.Join(", ", p.Jutsu.Take(3)) : "Nenhum")</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<Character>? characters;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await Http.GetFromJsonAsync<ApiResponse>("characters");
+        if (response != null)
+        {
+            characters = response.Characters;
+        }
+    }
+}
